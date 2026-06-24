@@ -1,0 +1,70 @@
+# Codemagic CI/CD Configuration for Desembaraçar Cordas (Capacitor Android)
+# For more info: https://docs.codemagic.io/yaml-quick-start/building-a-hybrid-app/
+
+workflows:
+  android-release:
+    name: Desembaraçar Cordas - Android App Bundle (AAB) Build
+    max_build_duration: 60
+    instance_type: linux_x2 # Fast, cost-efficient Linux builder
+    triggering:
+      push:
+        branches:
+          - main
+          - master
+    environment:
+      node: 20
+      java: 17
+      vars:
+        # We point the Gradle build to find the decoded keystore at this path
+        ANDROID_KEYSTORE_PATH: "/tmp/release.keystore"
+        # User will add these secrets in the Codemagic Web UI (under Environment Variables):
+        # - ANDROID_KEYSTORE_BASE64 (The entire .jks or .keystore file converted to Base64)
+        # - ANDROID_KEYSTORE_PASSWORD
+        # - ANDROID_KEY_ALIAS
+        # - ANDROID_KEY_PASSWORD
+    scripts:
+      - name: Install Node.js Dependencies
+        script: |
+          npm ci --legacy-peer-deps
+
+      - name: Build Web Application
+        script: |
+          npm run build
+
+      - name: Sync Web Assets to Capacitor Android
+        script: |
+          npx cap sync android
+
+      - name: Decode Signing Keystore
+        script: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "--------------------------------------------------------"
+            echo "WARNING: ANDROID_KEYSTORE_BASE64 is not set!"
+            echo "Building an UNSIGNED .aab file."
+            echo "To sign your app, add ANDROID_KEYSTORE_BASE64 to Codemagic."
+            echo "--------------------------------------------------------"
+          else
+            echo "Decoding Keystore file to $ANDROID_KEYSTORE_PATH..."
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          fi
+
+      - name: Build Production Android App Bundle (AAB)
+        script: |
+          cd android
+          # Run Gradle wrapper to compile a release bundle (AAB)
+          chmod +x gradlew
+          ./gradlew bundleRelease
+
+    artifacts:
+      # Locate and upload the built Android App Bundle (.aab)
+      - android/app/build/outputs/bundle/release/*.aab
+      # Optionally, also collect the APK if a test build was produced
+      - android/app/build/outputs/apk/release/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - psfassislp@gmail.com # Sends download links directly to your email
+        notify:
+          success: true
+          failure: true

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Desembaraçar Cordas</string>
+    <string name="title_activity_main">Desembaraçar Cordas</string>
+    <string name="package_name">com.desembaracar.cordas</string>
+    <string name="custom_url_scheme">com.desembaracar.cordas</string>
+</resources>
