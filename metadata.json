@@ -1,0 +1,6 @@
+{
+  "name": "Desembaraçar Cordas",
+  "description": "Jogo offline de desembaraçar cordas e nós com geração procedural de fases e conquistas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

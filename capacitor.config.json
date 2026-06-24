@@ -1,0 +1,8 @@
+{
+  "appId": "com.desembaracar.cordas",
+  "appName": "Desembaraçar Cordas",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
